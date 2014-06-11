@@ -80,6 +80,12 @@ def shash(inp, chars=16):
     h.update(inp)
     return h.hexdigest()[:chars]
 
+# Given a list, remove duplicates without destroying the order.
+def uniquify(seq):
+    seen = set()
+    seen_add = seen.add
+    return [ x for x in seq if x not in seen and not seen_add(x)]
+
 
 def make_new_book(book, path):
     # make new directory for the book
@@ -168,6 +174,8 @@ def read(book, options):
     # from the last day. More options to be added later.
     if 'a' not in options:
         dates = dates[-1:]
+
+    dates = uniquify(dates)
 
     messages = []
     while dates:
