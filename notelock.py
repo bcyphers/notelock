@@ -54,6 +54,16 @@ from Crypto.PublicKey import RSA
 from Crypto.Hash import SHA256 as SHA
 from Crypto import Random
 
+class bcolors:
+    SKYBLUE = '\033[96m'
+    MAGENTA = '\033[95m'
+    DARKBLUE = '\033[94m'
+    YELLOW = '\033[93m'
+    GREEN = '\033[92m'
+    RED = '\033[91m'
+    GRAY = '\033[90m'
+    ENDC = '\033[0m'
+
 PATH = 'lockers/'
 RSA_BITS = 2048
 AES_BITS = 128
@@ -63,11 +73,13 @@ pad = lambda s: s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * \
 unpad = lambda s : s[0:-ord(s[-1])]
 rand = Random.new()
 
+
 # Shortcut to get a reproducible, secure hash of an input
 def shash(inp, chars=16):
     h = SHA.new()
     h.update(inp)
     return h.hexdigest()[:chars]
+
 
 def make_new_book(book, path):
     # make new directory for the book
@@ -84,6 +96,7 @@ def make_new_book(book, path):
     with open(join(path, 'public.der'), 'w+') as pubfile:
         # Public key is in plaintext
         pubfile.write(rsakey.publickey().exportKey())
+
 
 def write(book, message, options):
     # the book name is hashed to create the file names
@@ -131,6 +144,7 @@ def write(book, message, options):
     with open(join(bookpath, 'ledger'), 'a+') as ledger:
         ledger.write(datecipher + '\n')
 
+
 def read(book, options):
     bookname = shash(book)
     bookpath = join(PATH, bookname)
@@ -175,13 +189,20 @@ def read(book, options):
             # create AES decryptor
             aes_cipher = AES.new(aes_key, AES.MODE_CBC, iv)
             # decrypt
-            msg = unpad(aes_cipher.decrypt(ciphertext)))
+            msg = unpad(aes_cipher.decrypt(ciphertext))
             # pull off timestamp
             time = msg.split('\n')[0]
             msg = '\n'.join(msg.split('\n')[1:])
             messages.append((time, msg))
 
-    print messages[-1]
+    for time, msg in messages:
+        if len(time) > 9:
+            print bcolors.SKYBLUE + time + bcolors.ENDC
+        else:
+            if 'v' in options:
+                print bcolors.GRAY + time + ':' + bcolors.ENDC,
+            print msg
+
 
 def set_remote(uid):
     r = requests.get('https://localhost:8000/login' + uid)
@@ -192,10 +213,12 @@ def set_remote(uid):
     elif r.status_code == 100:
         create_user(uid)
 
+
 def login(uid):
     pwd = getpass('Enter the password for username "' + uid + '": ')
     # hash shit & send it out
     packet = shash(uid + pwd)
+
 
 def create_user(uid):
     pw1 = getpass('Creating user "' + uid + '". Enter a new password: ')
@@ -205,7 +228,7 @@ def create_user(uid):
         create_user(uid)
 
     r = requests.post('https://localhost:8000/create' + uid)
-    if
+
 
 if __name__ == '__main__':
     args = sys.argv[1:]
