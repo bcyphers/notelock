@@ -13,11 +13,12 @@ user will be prompted to create it [y/n] and asked for an encryption password
 file. It will not check for the type of data in the file, so be careful.
 
 To read from a book, put 'notelock -r [book name]'. This will prompt the user
-for the book's password, and print the last entry from the book. The '-F' option
-will start looking from the [F]ront of the file, so the first entry will be
-printed last (and be visible first). The '-n' option outputs the first/last n
-entries, and '-a' prints all entries. 'notelock -l [book name] will list all the
-days for which there are entries, along with the number of entries for each day.
+for the book's password, and print entries from the book for the last day. The
+'-F' option will start looking from the [F]ront of the file, so the first entry
+will be printed last (and be visible first). The '-n' option outputs the
+first/last n entries, and '-a' prints all entries. 'notelock -l [book name] will
+list all the days for which there are entries, along with the number of entries
+for each day.
 
 There is no way to delete entries, and currently no way to edit them. This is
 intentional.
@@ -64,7 +65,9 @@ class bcolors:
     GRAY = '\033[90m'
     ENDC = '\033[0m'
 
-PATH = 'lockers/'
+LOCKER_PATH = 'lockers/'
+PUBLIC = 'public.der'
+PRIVATE = 'private.pem'
 RSA_BITS = 2048
 AES_BITS = 128
 BLOCK_SIZE = 16
@@ -91,15 +94,18 @@ def make_new_book(book, path):
     # make new directory for the book
     os.mkdir(path)
     pwd = getpass('Enter a password for notebook "' + book + '": ')
+    pwd_conf = getpass('Confirm password: ')
+    if pwd != pwd_conf:
+        make_new_book(book, path)
 
     # generate a new RSA key
     rsakey = RSA.generate(RSA_BITS)
 
     # serialize key, save to files
-    with open(join(path, 'private.pem'), 'w+') as pvtfile:
+    with open(join(path, PRIVATE), 'w+') as pvtfile:
         # Private key is encrypted with the user-defined password
         pvtfile.write(rsakey.exportKey(passphrase=pwd))
-    with open(join(path, 'public.der'), 'w+') as pubfile:
+    with open(join(path, PUBLIC), 'w+') as pubfile:
         # Public key is in plaintext
         pubfile.write(rsakey.publickey().exportKey())
 
@@ -107,9 +113,9 @@ def make_new_book(book, path):
 def write(book, message, options):
     # the book name is hashed to create the file names
     bookname = shash(book)
-    bookpath = join(PATH, bookname)
+    bookpath = join(LOCKER_PATH, bookname)
 
-    notebooks = [d for d in listdir(PATH) if isdir(join(PATH, d))]
+    notebooks = [d for d in listdir(LOCKER_PATH) if isdir(join(LOCKER_PATH, d))]
 
     # if the notebook does not exist, create it.
     if bookname not in notebooks:
@@ -119,7 +125,7 @@ def write(book, message, options):
     message = ' '.join(message)
 
     # get public key
-    public_key = RSA.importKey(open(join(bookpath, 'public.der'), 'r').read())
+    public_key = RSA.importKey(open(join(bookpath, PUBLIC), 'r').read())
 
     now = datetime.now()
     today = now.strftime('%Y-%m-%d')
@@ -153,13 +159,13 @@ def write(book, message, options):
 
 def read(book, options):
     bookname = shash(book)
-    bookpath = join(PATH, bookname)
+    bookpath = join(LOCKER_PATH, bookname)
 
     # get password first
     pwd = getpass('Enter password for notebook "' + book + '": ')
 
     # load private RSA key, create decryptor
-    private_key = RSA.importKey(open(join(bookpath, 'private.pem'), 'r').read(),
+    private_key = RSA.importKey(open(join(bookpath, PRIVATE), 'r').read(),
                         passphrase=pwd)
     rsa_cipher = PKCS1_OAEP.new(private_key)
 
@@ -170,12 +176,16 @@ def read(book, options):
         date = base64.b64decode(line[:-1])
         dates.append(rsa_cipher.decrypt(date))
 
+    dates = uniquify(dates)
+
+    # The '-F' option prints from the [F]ront of the file
+    if 'F' in options:
+        dates = reversed(dates)
+
     # The '-a' option prints all notes. The default behavior prints all notes
     # from the last day. More options to be added later.
     if 'a' not in options:
         dates = dates[-1:]
-
-    dates = uniquify(dates)
 
     messages = []
     while dates:
@@ -238,10 +248,28 @@ def create_user(uid):
     r = requests.post('https://localhost:8000/create' + uid)
 
 
+def verify_login(*args):
+    uid = args[0]
+    signature = args[1]
+    pub_key = open(join(uid, PUBLIC), 'r').read()
+
+
+def parse_prefs():
+    actions = {
+            'current_user': verify_login
+            }
+    with open(prefs_path) as prefs:
+        for line in prefs:
+            cmd, args = line.split()[0], line.split()[1:]
+            fn = actions[cmd]
+
 if __name__ == '__main__':
     args = sys.argv[1:]
 
-    # first parse out the options passed in, like '-o' or '--option'
+    # first, load prefs from the default file
+    # parse_prefs()
+
+    # parse out the options passed in, like '-o' or '--option'
     options = []
     while args[0][0] == '-':
         optstr = args.pop(0)[1:]
@@ -256,7 +284,7 @@ if __name__ == '__main__':
     notebook = args.pop(0)
 
     # 2hacky4me
-    if 'setid' in options:
+    if 'setid' in options: # or not user:
         set_remote(notebook)
     if 'r' in options: # handle reads
         read(notebook, options)
