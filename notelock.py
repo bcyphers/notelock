@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''
+ABOUT = '''
 Notelock: A simple terminal note encryption service. Or, the terminal diaries
 
 Use: notelock [OPTION]... [NOTEBOOK] [message]
@@ -263,8 +263,10 @@ def parse_prefs():
             cmd, args = line.split()[0], line.split()[1:]
             fn = actions[cmd]
 
-if __name__ == '__main__':
-    args = sys.argv[1:]
+def run(args):
+    # if no args, print readme
+    if not args:
+        print ABOUT
 
     # first, load prefs from the default file
     # parse_prefs()
@@ -290,3 +292,7 @@ if __name__ == '__main__':
         read(notebook, options)
     else: # otherwise, write, with args.
         write(notebook, args, options)
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    run(args)
