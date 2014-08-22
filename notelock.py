@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 ABOUT = '''
 Notelock: A simple terminal note encryption service. Or, the terminal diaries
 
