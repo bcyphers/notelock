@@ -116,6 +116,10 @@ def write(book, message, options):
     bookname = shash(book)
     bookpath = join(LOCKER_PATH, bookname)
 
+    # create the locker dir if it doesn't exist
+    if not os.path.isdir(LOCKER_PATH):
+        os.makedirs(LOCKER_PATH)
+
     notebooks = [d for d in listdir(LOCKER_PATH) if isdir(join(LOCKER_PATH, d))]
 
     # if the notebook does not exist, create it.
@@ -258,7 +262,7 @@ def verify_login(*args):
     signature = args[1]
     pub_key = open(join(uid, PUBLIC), 'r').read()
 
-''' END OF THINGS THAT DO NOT WORK '''
+# END OF THINGS THAT DO NOT WORK #
 
 def parse_prefs():
     actions = {
@@ -294,6 +298,7 @@ def run(args):
     ''' Again, setid is not actually functional
     if 'setid' in options: # or not user:
         set_remote(notebook)
+    '''
     if 'r' in options: # handle reads
         read(notebook, options)
     else: # otherwise, write, with args.
