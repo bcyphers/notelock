@@ -1,7 +1,4 @@
-notelock
-========
-
-## Notelock: A simple terminal note encryption service.
+## Notelock: A simple terminal note encryption service
 
 #### Use: `notelock [OPTION]... [NOTEBOOK] [message]`
 
