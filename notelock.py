@@ -1,11 +1,14 @@
+#!/usr/bin/env python
+
 ABOUT = '''
-Notelock: A simple terminal note encryption service. Or, the terminal diaries
+Notelock: A simple terminal note encryption service.
 
 Use: notelock [OPTION]... [NOTEBOOK] [message]
 
-Each notebook has entries stored in chronological order. Adding an entry is
-easy: just type 'notelock [book name] [message]', and it will be appended to the
-notebook with the notebook's password. If [book name] does not exist, then the
+Notelock stores notes in "notebooks." Each notebook has entries stored in
+chronological order. To add an entry to a type 'notelock [book name] [message]',
+and it will be appended to the notebook with the notebook's password, without
+the need for password re-entry. If [book name] does not exist, then the
 user will be prompted to create it [y/n] and asked for an encryption password
 (twice). 'notelock -f [book name] [filename]' will accept the contents of a
 file. It will not check for the type of data in the file, so be careful.
@@ -18,8 +21,7 @@ first/last n entries, and '-a' prints all entries. 'notelock -l [book name] will
 list all the days for which there are entries, along with the number of entries
 for each day.
 
-There is no way to delete entries, and currently no way to edit them. This is
-intentional.
+There is no way to delete entries, and currently no way to edit them.
 
 Features to add:
     - Editing: It seems reasonable to edit entries, at least by appending. This
@@ -89,12 +91,14 @@ def uniquify(seq):
 
 
 def make_new_book(book, path):
-    # make new directory for the book
-    os.mkdir(path)
+    # get the book's password
     pwd = getpass('Enter a password for notebook "' + book + '": ')
     pwd_conf = getpass('Confirm password: ')
     if pwd != pwd_conf:
         make_new_book(book, path)
+
+    # make new directory for the book
+    os.mkdir(path)
 
     # generate a new RSA key
     rsakey = RSA.generate(RSA_BITS)
@@ -230,9 +234,13 @@ def set_remote(uid):
         create_user(uid)
 
 
+'''
+The user features do not work yet -- I planned to build a web server backend
+which will allow remote storage of notes by username. WIP
+'''
 def login(uid):
     pwd = getpass('Enter the password for username "' + uid + '": ')
-    # hash shit & send it out
+    # hashit & send it out
     packet = shash(uid + pwd)
 
 
@@ -251,6 +259,7 @@ def verify_login(*args):
     signature = args[1]
     pub_key = open(join(uid, PUBLIC), 'r').read()
 
+''' END OF THINGS THAT DO NOT WORK '''
 
 def parse_prefs():
     actions = {
@@ -283,7 +292,7 @@ def run(args):
     # next string is the notebook name
     notebook = args.pop(0)
 
-    # 2hacky4me
+    ''' Again, setid is not actually functional
     if 'setid' in options: # or not user:
         set_remote(notebook)
     if 'r' in options: # handle reads
