@@ -34,6 +34,9 @@ There is no way to delete entries, and currently no way to edit them.
 - Summary: `notelock -l [book name]` will list all the days for which there
   are entries, along with the number of entries for each day.
 
+- RemoteLock: Have a web server which allows secure, per-user storage and
+  retrieval of notes.
+
 
 #### Implementation:
 - Each day stored in a file, YYYY-MM-DD
