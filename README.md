@@ -3,7 +3,7 @@ notelock
 
 ## Notelock: A simple terminal note encryption service.
 
-Use: `notelock [OPTION]... [NOTEBOOK] [message]`
+#### Use: `notelock [OPTION]... [NOTEBOOK] [message]`
 
 Notelock stores notes in "notebooks." Each notebook has entries stored in
 chronological order. To add an entry to a type `notelock [book name] [message]`,
@@ -20,12 +20,12 @@ will be printed last (and be visible first). The `-a` option prints all entries.
 
 There is no way to delete entries, and currently no way to edit them.
 
-Features to add:
+#### Features to add:
 - Editing: It seems reasonable to edit entries, at least by appending. This
   will mean some way to access individual notes.
   * Maybe the -r command will let the user scroll through notes using
-  * up/down, and whichever note s/he is currently on can be edited by
-  * hitting Enter?
+    up/down, and whichever note s/he is currently on can be edited by
+    hitting Enter?
 
 - Tags: Each note can be stored with a #tag, and books can be searched by
   tag.
@@ -38,8 +38,8 @@ Features to add:
   are entries, along with the number of entries for each day.
 
 
-Implementation:
-    - Each day stored in a file, YYYY-MM-DD
-    - Each entry encrypted seperately, preceeded by auth signiture
-    - Each notebook stored in a directory
-    - Text stored as unicode
+#### Implementation:
+- Each day stored in a file, YYYY-MM-DD
+- Each entry encrypted seperately, preceeded by auth signiture
+- Each notebook stored in a directory
+- Text stored as unicode
