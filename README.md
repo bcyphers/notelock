@@ -21,21 +21,21 @@ will be printed last (and be visible first). The `-a` option prints all entries.
 There is no way to delete entries, and currently no way to edit them.
 
 Features to add:
-    - Editing: It seems reasonable to edit entries, at least by appending. This
-      will mean some way to access individual notes.
-        * Maybe the -r command will let the user scroll through notes using
-        * up/down, and whichever note s/he is currently on can be edited by
-        * hitting Enter?
+- Editing: It seems reasonable to edit entries, at least by appending. This
+  will mean some way to access individual notes.
+  * Maybe the -r command will let the user scroll through notes using
+  * up/down, and whichever note s/he is currently on can be edited by
+  * hitting Enter?
 
-    - Tags: Each note can be stored with a #tag, and books can be searched by
-      tag.
+- Tags: Each note can be stored with a #tag, and books can be searched by
+  tag.
 
-    - Range search: Notes can be filtered by range, with 'notelock --range
-      [start date] [end date]'. Or maybe 'notelock --start [start date] --end
-      [end date]', to allow open-ended ranges.
+- Range search: Notes can be filtered by range, with 'notelock --range
+  [start date] [end date]'. Or maybe 'notelock --start [start date] --end
+  [end date]', to allow open-ended ranges.
 
-    - Summary: `notelock -l [book name]` will list all the days for which there
-      are entries, along with the number of entries for each day.
+- Summary: `notelock -l [book name]` will list all the days for which there
+  are entries, along with the number of entries for each day.
 
 
 Implementation:
